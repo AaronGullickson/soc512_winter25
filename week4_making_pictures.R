@@ -16,5 +16,6 @@ load(url("https://github.com/AaronGullickson/practical_analysis/raw/master/data/
 # Make a picture ----------------------------------------------------------
 
 ggplot(nyc, aes(x = poverty, y = amtcapita))+
-  geom_point(color = "skyblue")+
+  geom_point(mapping = aes(color = borough, size = popn), alpha = 0.5)+
+  geom_smooth(method = "lm", se = FALSE, color = "black", alpha = 0.6)+
   scale_y_log10()
