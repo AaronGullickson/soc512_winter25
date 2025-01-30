@@ -36,3 +36,20 @@ x |>
   log() |>
   sum() |>
   round(2)
+
+# lets use the tidyverse to get conditional means
+earnings |>
+  group_by(marstat) |>
+  summarize(mean_wages = mean(wages),
+            median_wages = median(wages),
+            mean_age = mean(age))
+
+# you can easily do it by more than one variable
+earnings |>
+  group_by(marstat, gender) |>
+  summarize(mean_wages = mean(wages),
+            median_wages = median(wages),
+            mean_age = mean(age))
+
+
+
