@@ -1,0 +1,97 @@
+---
+title: "Test Document"
+#author: "Aaron Gullickson"
+format: 
+   html:
+     embed-resources: true
+     toc: true
+   pdf:
+     keep-md: false
+     keep-tex: false
+execute:
+  echo: true
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(gt)
+load("class_data/movies.RData")
+```
+
+
+## Markdown Syntax
+
+This is text that will be in the body of the document. I can **bold** text, or I can *italicize* text.
+
+### Here is a subheading
+
+Outlines
+
+-   Here is a point
+-   Here is another point
+    -   Here is a subpoint
+    -   here is another subpoint
+-   Back to the original points
+
+1.  First thing
+2.  Second thing
+3.  Third thing
+
+##### Here is a subsubheading
+
+###### Here is a subsubsubheading
+
+This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph. This is a paragraph.
+
+```{r}
+#| label: simple-r-output
+mean(movies$runtime)
+```
+
+This is another paragraph. This is another paragraph. This is another paragraph. This is another paragraph. This is another paragraph. This is another paragraph. This is another paragraph. This is another paragraph.
+
+```{r}
+#| label: fig-movie-ratings
+#| fig-cap: Comparison of anonymous IMDB user ratings to professional rater's movie scores.
+#| fig-pos: "!t"
+ggplot(movies, aes(x = rating_imdb, y = metascore))+
+  geom_jitter(alpha = 0.6)+
+  labs(x = "IMDB rating", y = "metascore")+
+  theme_bw()
+```
+
+Take a look at @fig-movie-ratings and tell me what you see.
+
+> I have sworn upon the altar of God, eternal hostility against every form of tyranny over the mind of man.
+
+```{r}
+#| label: tbl-movie-summary
+#| tbl-cap: Summary statistics for movies by genre
+
+tbl_summary <- movies |>
+  group_by(genre) |>
+  summarize(n = n(),
+            runtime = mean(runtime),
+            metascore = mean(metascore),
+            prop_r_rated = mean(maturity_rating == "R"))
+
+gt(tbl_summary) |>
+  fmt_percent(prop_r_rated, decimals = 1) |>
+  fmt_number(c(runtime, metascore), decimals = 1) |>
+  fmt_integer(n) |>
+  cols_label(genre = "Genre", 
+             n = "Number",
+             runtime = "Runtime (minutes)",
+             metascore = "Metascore",
+             prop_r_rated = "R-rated") |>
+  cols_align(genre, align = "left") |>
+  tab_spanner(label = "mean value", columns = c(metascore, runtime))
+```
+
+I can reference @tbl-movie-summary in the text.
