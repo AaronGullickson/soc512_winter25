@@ -1,0 +1,11 @@
+Football, American   yesgood   11
+Football, Real       yesawesome11
+Basketball           yesokay   5
+Baseball             yesgood   9
+Olympic Weightliftingno okay   1
+Figure Skating       no ..     1
+
+# sport = 21 (1, 21)
+# team = 3 (22, 24)
+# fun_watch = 7 (25, 31)
+# number_players = 2 (32, 33)
