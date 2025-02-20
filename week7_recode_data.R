@@ -22,3 +22,9 @@ acs <- read_fwf("class_data/ipums_data/usa_00131.dat.gz",
                                          EDUCD   = c(69, 71),
                                          SEI     = c(72, 73)),
                 col_types = cols(.default = "i"))
+
+# example of selecting and renaming
+#acs |>
+#  rename(gender = SEX, age = AGE, marst = MARST) |>
+#  select(gender, age, marst, SEI, starts_with("R"), ends_with("N"))
+
