@@ -1,0 +1,20 @@
+############################
+# Week 7                   #
+# Recoding Data            #
+# Soc 412/512 Winter 2025  #
+# Aaron Gullickson         #
+############################
+
+
+# Read ACS data -----------------------------------------------------------
+
+acs <- read_fwf("class_data/ipums_data/usa_00131.dat.gz",
+                col_positions = fwf_cols(SEX     = c(53, 53),
+                                         AGE     = c(54, 56),
+                                         MARST   = c(57, 57),
+                                         RACE    = c(58, 58),
+                                         HISPAN  = c(62, 62),
+                                         HCOVANY = c(66, 66),
+                                         EDUCD   = c(69, 71),
+                                         SEI     = c(72, 73)),
+                col_types = cols(.default = "i"))
