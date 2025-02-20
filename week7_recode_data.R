@@ -51,14 +51,18 @@ table(acs$SEX, acs$sex, exclude = NULL)
 
 # more complicated variable using case_when
 
-case_when(
-  acs$MARST == 1 | acs$MARST == 2 ~ "Married",
-  acs$MARST == 3 | acs$MARST == 4 ~ "Separated/Divorced",
-  acs$MARST == 5 ~ "Widowed",
-  acs$MARST == 6 ~ "Never Married",
-  TRUE ~ NA
-)
+acs <- acs |>
+  mutate(mar_stat = case_when(MARST == 1 | MARST == 2 ~ "Married",
+                              MARST == 3 | MARST == 4 ~ "Separated/Divorced",
+                              MARST == 5 ~ "Widowed",
+                              MARST == 6 ~ "Never Married",
+                              TRUE ~ NA),
+         mar_stat = factor(mar_stat,
+                           levels = c("Never Married", "Married",
+                                      "Separated/Divorced", "Widowed")))
 
+# check ourselves
+table(acs$MARST, acs$mar_stat, exclude = NULL)
 
 
 
