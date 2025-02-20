@@ -28,3 +28,44 @@ acs <- read_fwf("class_data/ipums_data/usa_00131.dat.gz",
 #  rename(gender = SEX, age = AGE, marst = MARST) |>
 #  select(gender, age, marst, SEI, starts_with("R"), ends_with("N"))
 
+# Using ifelse to insert values -------------------------------------------
+
+# we need to convert zero values in the SEI variable into NA values
+# acs$sei <- ifelse(acs$SEI ==0, NA, acs$SEI)
+
+# lets do this via mutating!
+acs <- acs |>
+  mutate(sei = ifelse(SEI == 0, NA, SEI))
+
+# lets check ourselves
+table(acs$SEI, is.na(acs$sei), exclude=NULL)
+
+# Encoding a factor variable ----------------------------------------------
+
+# start with sex
+acs <- acs |>
+  mutate(sex = factor(SEX, levels = 1:2, labels = c("Male", "Female")))
+
+# check ourselves
+table(acs$SEX, acs$sex, exclude = NULL)
+
+# more complicated variable using case_when
+
+case_when(
+  acs$MARST == 1 | acs$MARST == 2 ~ "Married",
+  acs$MARST == 3 | acs$MARST == 4 ~ "Separated/Divorced",
+  acs$MARST == 5 ~ "Widowed",
+  acs$MARST == 6 ~ "Never Married",
+  TRUE ~ NA
+)
+
+
+
+
+
+# Create final analytical data --------------------------------------------
+
+analytical_data <- acs |>
+  select(sei, sex)
+
+save(analytical_data, file = "analytical_data.RData")
