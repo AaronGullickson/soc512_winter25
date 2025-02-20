@@ -1,10 +1,8 @@
-# Rankings of some sports
+# Rankings of some sports,,,
 sports,team,fun_watch,number_players
-"Football, American","yes","good",11
-"Football, Real","yes","awesome",11
-"Basketball","yes","okay",5
-"Baseball","yes","good",9
-"Olympic Weightlifting","no","okay",1
-"Figure Skating","no","..",1
-
-Source: Soc 412/512 Winter 2025
+"Football, American",yes,good,11
+"Football, Real",yes,awesome,11
+Basketball,yes,okay,5
+Baseball,yes,good,9
+Olympic Weightlifting,no,okay,1
+Figure Skating,no,..,1
