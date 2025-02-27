@@ -64,6 +64,28 @@ list(WorldBank = country_code_wb, VDEM = country_code_vdem) |>
 country_name_vdem[!(country_code_vdem %in% country_code_wb)]
 country_name_wb[!(country_code_wb %in% country_code_vdem)]
 
+vdem <- vdem |>
+  rename(country_code = country_text_id)
+
+# full_join - all data in both original datasets
+temp <- full_join(world_bank, vdem, by = c("country_code", "year"))
+
+# what happens if you accidentally also merge on country_name BAD
+#temp <- full_join(world_bank, vdem)
+
+# inner_join - only data that matches
+temp <- inner_join(world_bank, vdem, by = c("country_code", "year"))
+
+# left_join - only keep data from first dataset
+temp <- left_join(world_bank, vdem, by = c("country_code", "year"))
+
+# you can also pipe
+full_data <- world_bank |>
+  left_join(vdem, by = c("country_code", "year"))
+
+full_data <- vdem |>
+  select(!country_name) |>
+  right_join(world_bank)
 
 # Aggregate and reshape ---------------------------------------------------
 
