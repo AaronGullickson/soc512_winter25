@@ -37,5 +37,41 @@ world_bank <- world_bank |>
   )) |>
   pivot_longer(cols = starts_with("year"), names_prefix = "year",
                names_to = "year") |>
-  pivot_wider(names_from = series_code, values_from = value)
+  pivot_wider(names_from = series_code, values_from = value) |>
+  mutate(year = as.numeric(year))
 
+
+# Merge world bank and VDEM -----------------------------------------------
+
+# inspect keys
+
+country_name_wb <- unique(world_bank$country_name)
+country_name_vdem <- unique(vdem$country_name)
+
+list(WorldBank = country_name_wb, VDEM = country_name_vdem) |>
+  ggvenn(auto_scale = TRUE, fill_color = c("navy","seagreen"))
+
+c("Bob", "Mary") %in% c("Bob", "Harry", "June")
+country_name_wb[!(country_name_wb %in% country_name_vdem)]
+country_name_vdem[!(country_name_vdem %in% country_name_wb)]
+
+country_code_wb <- unique(world_bank$country_code)
+country_code_vdem <- unique(vdem$country_text_id)
+
+list(WorldBank = country_code_wb, VDEM = country_code_vdem) |>
+  ggvenn(auto_scale = TRUE, fill_color = c("navy","seagreen"))
+
+country_name_vdem[!(country_code_vdem %in% country_code_wb)]
+country_name_wb[!(country_code_wb %in% country_code_vdem)]
+
+
+# Aggregate and reshape ---------------------------------------------------
+
+earnings |>
+  group_by(education, gender) |>
+  summarize(mean_wages = mean(wages),
+            n = n()) |>
+  ungroup() |>
+  pivot_wider(names_from = gender, values_from = c(mean_wages, n)) |>
+  mutate(wage_diff = mean_wages_Male - mean_wages_Female,
+         wage_ratio = mean_wages_Female / mean_wages_Male)
