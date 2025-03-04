@@ -1,0 +1,41 @@
+---
+title: "Models in R"
+format: pdf
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(modelsummary)
+load("class_data/movies.RData")
+```
+
+```{r}
+#| label: models
+
+model1 <- lm(metascore ~ I(year-2000) + maturity_rating, data = movies)
+model2 <- update(model1, . ~ . + genre)
+model3 <- update(model2, . ~ . + box_office + runtime)
+```
+
+
+```{r}
+#| label: tbl-models
+#| tbl-cap: Models predicting movie metascore
+
+modelsummary(list(model1, model2, model3), 
+             stars = c("*" = 0.05, 
+                       "**" = 0.01, 
+                       "***" = 0.001),
+             coef_map = c("(Intercept)" = "Intercept",
+                          "I(year-2000)" = "Year of release",
+                          "maturity_ratingPG" = "PG",
+                          "maturity_ratingPG-13" = "PG-13",
+                          "maturity_ratingR" = "R",
+                          "box_office" = "Box Office returns (million USD)",
+                          "runtime" = "Movie runtime (minutes)"),
+             gof_map = c("Number of obs." = "nobs", "R2" = "r.squared"),
+             notes = list("Standard errors in parenthesis",
+                          "Movie data compiled from IMDB and Open Movie Database"))
+```
