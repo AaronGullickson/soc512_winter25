@@ -153,11 +153,9 @@ for(name in county_names) {
   h <- tracts |>
     filter(county_name == name) |>
     calc_theil_h()
-
-  theil_h <- c(theil_h, h)
+  theil_h <- theil_h |>
+    bind_rows(tibble(county_name = name, h))
 }
-
-theil_h <- tibble(county_name = county_names, theil_h)
 
 # Mapping -----------------------------------------------------------------
 
@@ -185,11 +183,10 @@ system.time(
     h <- tracts |>
       filter(county_name == name) |>
       calc_theil_h()
-
-    theil_h <- c(theil_h, h)
+    theil_h <- theil_h |>
+      bind_rows(tibble(county_name = name, h))
   }
 )
-theil_h <- tibble(county_name = county_names, theil_h)
 
 system.time(
   theil_h <- map(tracts_list, function(x) {
