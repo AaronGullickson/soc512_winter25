@@ -82,12 +82,14 @@ calc_theil_h <- function(tracts_county) {
 
   county <- tracts_county |>
     group_by(county_id, race) |>
-    summarize(pop = sum(pop), pop_total = sum(pop_total)) |>
+    summarize(pop = sum(pop), pop_total = sum(pop_total),
+              .groups = "drop_last") |>
     mutate(prop = pop / pop_total,
            e = prop * log(1 / prop, 7)) |>
     group_by(county_id) |>
     summarize(e = sum(e, na.rm = TRUE),
-              pop_total = sum(pop)) |>
+              pop_total = sum(pop),
+              .groups = "drop_last") |>
     ungroup()
 
   tracts_county <- tracts_county |>
@@ -155,7 +157,7 @@ for(name in county_names) {
   theil_h <- c(theil_h, h)
 }
 
-theil_h <- tibble(county_names, theil_h)
+theil_h <- tibble(county_name = county_names, theil_h)
 
 # Mapping -----------------------------------------------------------------
 
@@ -174,3 +176,27 @@ theil_h <- map(tracts_list, function(x) {
 }) |>
   bind_rows()
 
+
+# Compare how long with system.time ---------------------------------------
+
+theil_h <- NULL
+system.time(
+  for(name in county_names) {
+    h <- tracts |>
+      filter(county_name == name) |>
+      calc_theil_h()
+
+    theil_h <- c(theil_h, h)
+  }
+)
+theil_h <- tibble(county_name = county_names, theil_h)
+
+system.time(
+  theil_h <- map(tracts_list, function(x) {
+    h <- calc_theil_h(x)
+    county_id <- x$county_id[1]
+    county_name <- x$county_name[1]
+    tibble(county_id, county_name, theil_h = h)
+  }) |>
+    bind_rows()
+)
