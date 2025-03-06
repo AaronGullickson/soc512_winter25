@@ -48,8 +48,14 @@ county <- tracts_sanb |>
   mutate(prop = pop / pop_total,
          e = prop * log(1 / prop, 7)) |>
   group_by(county_id) |>
-  summarize(e = sum(e),
+  summarize(e = sum(e, na.rm = TRUE),
             pop_total = sum(pop))
 
+tracts_sanb <- tracts_sanb |>
+  mutate(prop = pop / pop_total,
+         e = prop * log(1 / prop, 7)) |>
+  group_by(tract_id) |>
+  summarize(e = sum(e, na.rm = TRUE),
+            pop_total = sum(pop))
 
-
+sum(tracts_sanb$pop_total * tracts_sanb$e) / (county$pop_total * county$e)
