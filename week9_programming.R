@@ -31,3 +31,25 @@ tracts <- read_csv("class_data/social_explorer/R13598833_SL140.csv",
          pop_race_latino = SE_B04001_010) |>
   select(tract_id, starts_with("county_"), starts_with("pop_")) |>
   filter(pop_total > 0)
+
+# Calculate Theil's H for a case ------------------------------------------
+
+tracts_sanb <- tracts |> filter(county_name == "San Bernardino County, California")
+
+# reshape for easier processing
+tracts_sanb <- tracts_sanb |>
+  pivot_longer(cols = starts_with("pop_race_"),
+               names_prefix = "pop_race_",
+               names_to = "race", values_to = "pop")
+
+county <- tracts_sanb |>
+  group_by(county_id, race) |>
+  summarize(pop = sum(pop), pop_total = sum(pop_total)) |>
+  mutate(prop = pop / pop_total,
+         e = prop * log(1 / prop, 7)) |>
+  group_by(county_id) |>
+  summarize(e = sum(e),
+            pop_total = sum(pop))
+
+
+
