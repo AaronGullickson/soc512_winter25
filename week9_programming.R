@@ -87,14 +87,16 @@ calc_theil_h <- function(tracts_county) {
            e = prop * log(1 / prop, 7)) |>
     group_by(county_id) |>
     summarize(e = sum(e, na.rm = TRUE),
-              pop_total = sum(pop))
+              pop_total = sum(pop)) |>
+    ungroup()
 
   tracts_county <- tracts_county |>
     mutate(prop = pop / pop_total,
            e = prop * log(1 / prop, 7)) |>
     group_by(tract_id) |>
     summarize(e = sum(e, na.rm = TRUE),
-              pop_total = sum(pop))
+              pop_total = sum(pop)) |>
+    ungroup()
 
   1-sum(tracts_county$pop_total * tracts_county$e) /
     (county$pop_total * county$e)
@@ -130,3 +132,45 @@ tracts |>
 tracts |>
   filter(county_name == "Cook County, Illinois") |>
   calc_theil_h()
+
+
+# For loop ----------------------------------------------------------------
+
+county_names <- unique(tracts$county_name)
+
+for(i in 1:length(county_names)) {
+  print(county_names[i])
+}
+
+for(county_name in county_names) {
+  print(county_name)
+}
+
+theil_h <- NULL
+for(name in county_names) {
+  h <- tracts |>
+    filter(county_name == name) |>
+    calc_theil_h()
+
+  theil_h <- c(theil_h, h)
+}
+
+theil_h <- tibble(county_names, theil_h)
+
+# Mapping -----------------------------------------------------------------
+
+# lapply or map (from the purrr package)
+tracts_list <- tracts |>
+  group_by(county_id, county_name) |>
+  group_split()
+
+# map_dbl(tracts_list, calc_theil_h)
+
+theil_h <- map(tracts_list, function(x) {
+  h <- calc_theil_h(x)
+  county_id <- x$county_id[1]
+  county_name <- x$county_name[1]
+  tibble(county_id, county_name, theil_h = h)
+}) |>
+  bind_rows()
+
