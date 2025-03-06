@@ -58,4 +58,75 @@ tracts_sanb <- tracts_sanb |>
   summarize(e = sum(e, na.rm = TRUE),
             pop_total = sum(pop))
 
-sum(tracts_sanb$pop_total * tracts_sanb$e) / (county$pop_total * county$e)
+1-sum(tracts_sanb$pop_total * tracts_sanb$e) / (county$pop_total * county$e)
+
+# Basic functions ---------------------------------------------------------
+y <- 5
+
+print_value <- function(x, exclamation = FALSE) {
+  if(exclamation) {
+    return("!!!!!!!!!!!!!!!!")
+  }
+  return(print(x))
+}
+
+
+# Function for Theil h ----------------------------------------------------
+
+calc_theil_h <- function(tracts_county) {
+
+  tracts_county <- tracts_county |>
+    pivot_longer(cols = starts_with("pop_race_"),
+                 names_prefix = "pop_race_",
+                 names_to = "race", values_to = "pop")
+
+  county <- tracts_county |>
+    group_by(county_id, race) |>
+    summarize(pop = sum(pop), pop_total = sum(pop_total)) |>
+    mutate(prop = pop / pop_total,
+           e = prop * log(1 / prop, 7)) |>
+    group_by(county_id) |>
+    summarize(e = sum(e, na.rm = TRUE),
+              pop_total = sum(pop))
+
+  tracts_county <- tracts_county |>
+    mutate(prop = pop / pop_total,
+           e = prop * log(1 / prop, 7)) |>
+    group_by(tract_id) |>
+    summarize(e = sum(e, na.rm = TRUE),
+              pop_total = sum(pop))
+
+  1-sum(tracts_county$pop_total * tracts_county$e) /
+    (county$pop_total * county$e)
+
+}
+
+# try it out!
+
+tracts |>
+  filter(county_name == "San Bernardino County, California") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "King County, Washington") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Lewis County, Washington") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Broward County, Florida") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Wells County, Indiana") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Wayne County, Michigan") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Cook County, Illinois") |>
+  calc_theil_h()
