@@ -6,6 +6,8 @@ library(tidyverse)
 load("class_data/titanic.RData")
 load("class_data/politics.RData")
 load("class_data/earnings.RData")
+load("class_data/popularity.RData")
+
 
 # logit models of the titanic --------------------------------------------
 
@@ -41,8 +43,21 @@ levels(politics$globalwarm)
 
 model1 <- glm(globalwarm ~ relig, data = politics,
               family = binomial)
+# political party
+# education
+# income
+# age
+# race
+#model1.5 <- update(model1, .~. + party)
+model2 <- update(model1, .~. + age + I(age^2))
+model3 <- update(model2, .~. + educ + income)
+model4 <- update(model3, .~. + party)
+
+modelsummary(list(model1, model1.5, model2, model3, model4), stars = TRUE)
 
 # marginal effects --------------------------------------------------------
+
+model_wages <- lm(wages ~ age + I(age^2), data = earnings)
 
 model1 <- glm(survival ~ I(sex == "Female") + fare,
               data = titanic, family = binomial)
@@ -69,7 +84,10 @@ p * (1-p) * coef(model1)["fare"]
 # the slopes command from the marginal effects package can be used to do the
 # same thing, but it also calculates a standard error for this estimate
 slopes(model1, variables = "fare",
-       newdata =  data.frame(fare = 20, sex = "Male"))
+       newdata =  data.frame(fare = c(20, 100), sex = "Male"))
+
+slopes(model1, variables = "fare",
+       newdata =  data.frame(fare = c(20, 100), sex = "Female"))
 
 
 # what about the marginal effect of gender at this level?
@@ -162,11 +180,47 @@ predictions(model_wages_log, newdata = data.frame(age = c(20, 30, 40, 50, 60)))
 
 # if you use a glm to log DV you can even recover marginal effects on the
 # original scale
+model_wages_lm <- lm(log(wages)~log(age), data = earnings)
+
 model_wages_ldv <- glm(wages ~ log(age), data = earnings,
                        family = gaussian(link = "log"))
+modelsummary(list(model_wages_lm, model_wages_ldv))
 coef(model_wages_ldv)
 avg_slopes(model_wages_ldv)
 
 # the elasticity model says that a 1% increase in age is associated with about
 # a 0.45% increase in wages. Across the whole sample this works out to be about
 # $0.286/hour more for a one year increase in age
+
+
+# Smoking! ----------------------------------------------------------------
+
+model1 <- glm(smoker ~ I(grade-9) + alcohol_use + gender * honor_society,
+              data = popularity, family = binomial)
+
+summary(model1)
+
+model2 <- glm(smoker ~ I(grade-9) + alcohol_use + gender + honor_society,
+              data = popularity, family = binomial)
+
+model3 <- glm(smoker ~ I(grade-9) + alcohol_use + gender + honor_society+nsports,
+             data = popularity, family = binomial)
+
+model4 <- glm(smoker ~ I(grade-9) + alcohol_use + gender + honor_society+nsports +
+                race,
+              data = popularity, family = binomial)
+
+modelsummary(list(model1, model2, model3, model4), stars = TRUE)
+
+BIC.null.glm <- function(model) {
+  n <- length(model$resid)
+  p <- length(model$coef)-1
+  return((model$deviance-model$null.deviance)+p*log(n))
+}
+
+BIC.null.glm(model1)
+BIC.null.glm(model2)
+
+BIC.null.glm(model2)-BIC.null.glm(model1)
+
+(deviance(model2) - deviance(model1)) + (-1) * log(nrow(popularity))
